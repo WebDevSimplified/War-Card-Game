@@ -32,6 +32,14 @@ export default class Deck {
     this.cards.push(card)
   }
 
+  stack(cardsSlot){
+    this.cards = this.cards.concat(cardsSlot)
+  }
+
+  removeAllCards(){
+    return this.cards.splice(0)
+  }
+
   shuffle() {
     for (let i = this.numberOfCards - 1; i > 0; i--) {
       const newIndex = Math.floor(Math.random() * (i + 1))
