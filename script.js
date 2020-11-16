@@ -22,7 +22,7 @@ const computerDeckElement = document.querySelector(".computer-deck")
 const playerDeckElement = document.querySelector(".player-deck")
 const text = document.querySelector(".text")
 
-let playerDeck, computerDeck, inRound, stop
+let playerDeck, playerDeckSlot, computerDeck, computerDeckSlot, inRound, stop
 
 document.addEventListener("click", () => {
   if (stop) {
@@ -44,7 +44,9 @@ function startGame() {
 
   const deckMidpoint = Math.ceil(deck.numberOfCards / 2)
   playerDeck = new Deck(deck.cards.slice(0, deckMidpoint))
+  playerDeckSlot = new Deck([])
   computerDeck = new Deck(deck.cards.slice(deckMidpoint, deck.numberOfCards))
+  computerDeckSlot = new Deck([])
   inRound = false
   stop = false
 
@@ -53,36 +55,37 @@ function startGame() {
 
 function cleanBeforeRound() {
   inRound = false
-  computerCardSlot.innerHTML = ""
-  playerCardSlot.innerHTML = ""
+  computerCardSlot.innerHTML = "<div></div>"
+  playerCardSlot.innerHTML = "<div></div>"
   text.innerText = ""
 
   updateDeckCount()
 }
 
 function flipCards() {
-  inRound = true
-
   const playerCard = playerDeck.pop()
+  playerDeckSlot.push(playerCard)
   const computerCard = computerDeck.pop()
+  computerDeckSlot.push(playerCard)  
 
-  playerCardSlot.appendChild(playerCard.getHTML())
-  computerCardSlot.appendChild(computerCard.getHTML())
+  playerCardSlot.replaceChild(playerCard.getHTML(), playerCardSlot.childNodes[0])
+  computerCardSlot.replaceChild(computerCard.getHTML(), computerCardSlot.childNodes[0])
 
   updateDeckCount()
 
   if (isRoundWinner(playerCard, computerCard)) {
     text.innerText = "Win"
-    playerDeck.push(playerCard)
-    playerDeck.push(computerCard)
+    playerDeck.stack(playerDeckSlot.removeAllCards())
+    playerDeck.stack(computerDeckSlot.removeAllCards())
+    inRound = true
   } else if (isRoundWinner(computerCard, playerCard)) {
     text.innerText = "Lose"
-    computerDeck.push(playerCard)
-    computerDeck.push(computerCard)
+    computerDeck.stack(playerDeckSlot.removeAllCards())
+    computerDeck.stack(computerDeckSlot.removeAllCards())
+    inRound = true
   } else {
     text.innerText = "Draw"
-    playerDeck.push(playerCard)
-    computerDeck.push(computerCard)
+    inRound = false
   }
 
   if (isGameOver(playerDeck)) {
